@@ -1,0 +1,87 @@
+in>>>>>>>vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php
+updata:::::
+protected function unauthenticated($request, AuthenticationException $exception)
+{
+    return response()->json(['error' => 'Unauthenticated'], 401);
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+use Route api like in api.php i do
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+in>>>>>>>>vendor/laravel/framework/src/Illuminate/Foundation/Auth/RegistersUsers.php
+add:::::
+public function register(Request $request)
+ {
+    // Here the request is validated. The validator method is located
+    // inside the RegisterController, and makes sure the name, email
+    // password and password_confirmation fields are required.
+    $this->validator($request->all())->validate();
+
+    // A Registered event is created and will trigger any relevant
+    // observers, such as sending a confirmation email or any
+    // code that needs to be run as soon as the user is created.
+    event(new Registered($user = $this->create($request->all())));
+
+    // After the user is created, he's logged in.
+    $this->guard()->login($user);
+
+    // And finally this is the hook that we want. If there is no
+    // registered() method or it returns null, redirect him to
+    // some other URL. In our case, we just need to implement
+    // that method to return the correct response.
+    return $this->registered($request, $user)
+               ?: redirect($this->redirectPath());
+
+ }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+in>>>user.php model
+public function generateToken()
+{
+    $this->api_token = str_random(60);
+    $this->save();
+
+    return $this->api_token;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+in LoginController add
+//login api
+public function login(Request $request)
+{
+    $this->validateLogin($request);
+
+    if ($this->attemptLogin($request)) {
+        $user = $this->guard()->user();
+        $user->generateToken();
+
+        return response()->json([
+            'data' => $user->toArray(),
+        ]);
+    }
+
+    return $this->sendFailedLoginResponse($request);
+}
+//logout api_token
+public function logout_api(Request $request)
+{
+    $user = Auth::guard('api')->user();
+    if ($user) {
+        $user->api_token = null;
+        $user->save();
+        return response()->json(['data' => 'User logged out.'], 200);
+    }
+    return response()->json(['data' => 'User no.'], 404);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+in RegisterController add
+protected function registered(Request $request, $user)
+{
+    $user->generateToken();
+
+    return response()->json(['data' => $user->toArray()], 201);
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+in use api anytime add
+Content-Type: application/json
+Host: localhost:8000
+Content-Length: 57
+Authorization: Bearer api_token   bearer is important befor any api_token
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

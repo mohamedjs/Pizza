@@ -1,0 +1,44 @@
+/*start slide show and preve and next*/
+.mySlides {
+   display:none
+}
+.slideshowe {
+  position: relative;
+}
+.slideshowe .tour-contant{
+    position: absolute;
+    bottom: 0px;
+    border: 3px solid #fff;
+    width: 100%;
+    padding: 10px;
+}
+.slideshowe .tour-contant h1{
+    font-size: 30px;
+    color: red;
+}
+/* Next & previous buttons */
+.preve, .nexte {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 7px;
+  text-align: center;
+  border-radius: 50%;
+  color: #B7B7B7;
+  background-color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+  transition: 0.6s ease;
+}
+/* Position the "next button" to the right */
+.nexte {
+  right: 15%;
+}
+.preve{
+   left: 15%;
+}
+.preve:hover, .nexte:hover {
+  background-color: rgba(0,0,0,0.8);
+}
